@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-namespace SuProyecto.Models
+
+namespace CRUDTablas.Models
 {
     public class Categoria
     {
@@ -7,7 +8,6 @@ namespace SuProyecto.Models
         public string Nombre { get; set; } = null!;
 
         // Relación: Una categoría tiene muchos productos
-        public virtual ICollection<Producto> Productos { get; set; } = new List<Productos>();
+        public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
     }
 }
-

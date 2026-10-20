@@ -1,6 +1,4 @@
-﻿using SuProyecto.Models;
-
-namespace TuProyecto.Models
+﻿namespace CRUDTablas.Models
 {
     public class Producto
     {
@@ -8,7 +6,8 @@ namespace TuProyecto.Models
         public string Nombre { get; set; } = null!;
         public decimal Precio { get; set; }
         public int CategoriaId { get; set; }
-        // Propiedades de navegación
-        public virtual Categoria Categorias { get; set; } = null!;
+
+        // Propiedad de navegación (debe llamarse Categoria en singular)
+        public virtual Categoria Categoria { get; set; } = null!;
     }
 }

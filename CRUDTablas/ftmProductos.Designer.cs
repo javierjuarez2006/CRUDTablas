@@ -28,27 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
-            dataGridView1 = new DataGridView();
+            dgvProductos = new DataGridView();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            textBox1 = new TextBox();
-            textBox2 = new TextBox();
-            comboBox1 = new ComboBox();
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
-            button4 = new Button();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            txtNombre = new TextBox();
+            txtPrecio = new TextBox();
+            cmbCategorias = new ComboBox();
+            btnGuardar = new Button();
+            btnEditar = new Button();
+            btnEliminar = new Button();
+            btnLimpiar = new Button();
+            ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
             // 
-            // dataGridView1
+            // dgvProductos
             // 
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(12, 12);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.Size = new Size(556, 150);
-            dataGridView1.TabIndex = 0;
+            dgvProductos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvProductos.Location = new Point(12, 12);
+            dgvProductos.Name = "dgvProductos";
+            dgvProductos.Size = new Size(556, 150);
+            dgvProductos.TabIndex = 0;
             // 
             // label1
             // 
@@ -80,99 +80,99 @@
             label3.TabIndex = 3;
             label3.Text = "Categorìa:";
             // 
-            // textBox1
+            // txtNombre
             // 
-            textBox1.Location = new Point(124, 192);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(270, 23);
-            textBox1.TabIndex = 4;
+            txtNombre.Location = new Point(124, 192);
+            txtNombre.Name = "txtNombre";
+            txtNombre.Size = new Size(270, 23);
+            txtNombre.TabIndex = 4;
             // 
-            // textBox2
+            // txtPrecio
             // 
-            textBox2.Location = new Point(124, 224);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(155, 23);
-            textBox2.TabIndex = 5;
+            txtPrecio.Location = new Point(124, 224);
+            txtPrecio.Name = "txtPrecio";
+            txtPrecio.Size = new Size(155, 23);
+            txtPrecio.TabIndex = 5;
             // 
-            // comboBox1
+            // cmbCategorias
             // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(124, 253);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(204, 23);
-            comboBox1.TabIndex = 6;
+            cmbCategorias.FormattingEnabled = true;
+            cmbCategorias.Location = new Point(124, 253);
+            cmbCategorias.Name = "cmbCategorias";
+            cmbCategorias.Size = new Size(204, 23);
+            cmbCategorias.TabIndex = 6;
             // 
-            // button1
+            // btnGuardar
             // 
-            button1.Location = new Point(58, 307);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 7;
-            button1.Text = "Guardar";
-            button1.UseVisualStyleBackColor = true;
+            btnGuardar.Location = new Point(58, 307);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new Size(75, 23);
+            btnGuardar.TabIndex = 7;
+            btnGuardar.Text = "Guardar";
+            btnGuardar.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // btnEditar
             // 
-            button2.Location = new Point(173, 307);
-            button2.Name = "button2";
-            button2.Size = new Size(75, 23);
-            button2.TabIndex = 8;
-            button2.Text = "Actualizar";
-            button2.UseVisualStyleBackColor = true;
+            btnEditar.Location = new Point(180, 307);
+            btnEditar.Name = "btnEditar";
+            btnEditar.Size = new Size(75, 23);
+            btnEditar.TabIndex = 8;
+            btnEditar.Text = "Editar";
+            btnEditar.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // btnEliminar
             // 
-            button3.Location = new Point(298, 307);
-            button3.Name = "button3";
-            button3.Size = new Size(75, 23);
-            button3.TabIndex = 9;
-            button3.Text = "Eliminar";
-            button3.UseVisualStyleBackColor = true;
+            btnEliminar.Location = new Point(298, 307);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(75, 23);
+            btnEliminar.TabIndex = 9;
+            btnEliminar.Text = "Eliminar";
+            btnEliminar.UseVisualStyleBackColor = true;
             // 
-            // button4
+            // btnLimpiar
             // 
-            button4.Location = new Point(411, 307);
-            button4.Name = "button4";
-            button4.Size = new Size(75, 23);
-            button4.TabIndex = 10;
-            button4.Text = "Limpiar";
-            button4.UseVisualStyleBackColor = true;
+            btnLimpiar.Location = new Point(411, 307);
+            btnLimpiar.Name = "btnLimpiar";
+            btnLimpiar.Size = new Size(75, 23);
+            btnLimpiar.TabIndex = 10;
+            btnLimpiar.Text = "Limpiar";
+            btnLimpiar.UseVisualStyleBackColor = true;
             // 
             // ftmProductos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(593, 345);
-            Controls.Add(button4);
-            Controls.Add(button3);
-            Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(comboBox1);
-            Controls.Add(textBox2);
-            Controls.Add(textBox1);
+            Controls.Add(btnLimpiar);
+            Controls.Add(btnEliminar);
+            Controls.Add(btnEditar);
+            Controls.Add(btnGuardar);
+            Controls.Add(cmbCategorias);
+            Controls.Add(txtPrecio);
+            Controls.Add(txtNombre);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
-            Controls.Add(dataGridView1);
+            Controls.Add(dgvProductos);
             Name = "ftmProductos";
             Text = "Registro de Productos";
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private DataGridView dataGridView1;
+        private DataGridView dgvProductos;
         private Label label1;
         private Label label2;
         private Label label3;
-        private TextBox textBox1;
-        private TextBox textBox2;
-        private ComboBox comboBox1;
-        private Button button1;
-        private Button button2;
-        private Button button3;
-        private Button button4;
+        private TextBox txtNombre;
+        private TextBox txtPrecio;
+        private ComboBox cmbCategorias;
+        private Button btnGuardar;
+        private Button btnEditar;
+        private Button btnEliminar;
+        private Button btnLimpiar;
     }
 }
