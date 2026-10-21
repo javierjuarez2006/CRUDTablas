@@ -78,7 +78,7 @@
             label3.Name = "label3";
             label3.Size = new Size(88, 21);
             label3.TabIndex = 3;
-            label3.Text = "Categorìa:";
+            label3.Text = "Categoria:";
             // 
             // txtNombre
             // 
@@ -96,6 +96,7 @@
             // 
             // cmbCategorias
             // 
+            cmbCategorias.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCategorias.FormattingEnabled = true;
             cmbCategorias.Location = new Point(124, 253);
             cmbCategorias.Name = "cmbCategorias";
@@ -110,6 +111,7 @@
             btnGuardar.TabIndex = 7;
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click_1;
             // 
             // btnEditar
             // 
@@ -119,6 +121,7 @@
             btnEditar.TabIndex = 8;
             btnEditar.Text = "Editar";
             btnEditar.UseVisualStyleBackColor = true;
+            btnEditar.Click += btnEditar_Click;
             // 
             // btnEliminar
             // 
@@ -128,6 +131,7 @@
             btnEliminar.TabIndex = 9;
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
+            btnEliminar.Click += btnEliminar_Click_1;
             // 
             // btnLimpiar
             // 
@@ -137,6 +141,7 @@
             btnLimpiar.TabIndex = 10;
             btnLimpiar.Text = "Limpiar";
             btnLimpiar.UseVisualStyleBackColor = true;
+            btnLimpiar.Click += btnLimpiar_Click_1;
             // 
             // ftmProductos
             // 

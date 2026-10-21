@@ -22,22 +22,51 @@ namespace CRUDTablas
             CargarProductos();
         }
 
+
+
         // --- MÉTODOS DE SOPORTE ---
         private void CargarCategorias()
         {
-            // Insertar datos de prueba en categorías si está vacío
-            if (!_context.Categorias.Any())
+            try
             {
-                _context.Categorias.AddRange(
-                    new Categoria { Nombre = "Electrónica" },
-                    new Categoria { Nombre = "Ropa" }
-                );
-                _context.SaveChanges();
+                // 1. Asegura que la base de datos y las tablas existan
+                _context.Database.EnsureCreated();
+
+                // 2. Inserta datos por defecto si la tabla está vacía
+                if (!_context.Categorias.Any())
+                {
+                    _context.Categorias.AddRange(
+                        new Categoria { Nombre = "Electrónica" },
+                        new Categoria { Nombre = "Ropa" }
+                    );
+                    _context.SaveChanges();
+                }
+
+                // 3. Consulta limpia aislando solo Id y Nombre (Evita el conflicto de EF Core)
+                var listaCategorias = _context.Categorias
+                    .Select(c => new { c.Id, c.Nombre })
+                    .ToList();
+
+                // 4. Asignamos los valores al ComboBox
+                cmbCategorias.DataSource = null;
+                cmbCategorias.DataSource = listaCategorias;
+                cmbCategorias.DisplayMember = "Nombre";
+                cmbCategorias.ValueMember = "Id";
+
+                // 5. Seleccionamos el primer elemento por defecto
+                if (cmbCategorias.Items.Count > 0)
+                {
+                    cmbCategorias.SelectedIndex = 0;
+                }
             }
-            cmbCategorias.DataSource = _context.Categorias.ToList();
-            cmbCategorias.DisplayMember = "Nombre";
-            cmbCategorias.ValueMember = "Id";
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar categorías: " + ex.Message);
+            }
         }
+
+
+
 
         private void CargarProductos()
         {
@@ -70,16 +99,22 @@ namespace CRUDTablas
             btnGuardar.Text = "Guardar";
         }
 
-        // --- ACCIONES CRUD ---
-        // CREATE / UPDATE
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtNombre.Text) ||
-                !decimal.TryParse(txtPrecio.Text, out decimal precio))
+            if (string.IsNullOrEmpty(txtNombre.Text) || !decimal.TryParse(txtPrecio.Text, out decimal precio))
             {
                 MessageBox.Show("Por favor, rellene los campos correctamente.");
                 return;
             }
+
+            // Validación de seguridad para que no explote si no hay categoría seleccionada
+            if (cmbCategorias.SelectedValue == null)
+            {
+                MessageBox.Show("Por favor, seleccione una categoría válida.");
+                return;
+            }
+
+            int categoriaId = Convert.ToInt32(cmbCategorias.SelectedValue);
 
             if (_productoIdSeleccionado == 0)
             {
@@ -88,7 +123,7 @@ namespace CRUDTablas
                 {
                     Nombre = txtNombre.Text,
                     Precio = precio,
-                    CategoriaId = (int)cmbCategorias.SelectedValue
+                    CategoriaId = categoriaId
                 };
                 _context.Productos.Add(nuevoProducto);
             }
@@ -100,17 +135,16 @@ namespace CRUDTablas
                 {
                     productoExistente.Nombre = txtNombre.Text;
                     productoExistente.Precio = precio;
-                    productoExistente.CategoriaId = (int)cmbCategorias.SelectedValue;
+                    productoExistente.CategoriaId = categoriaId;
                 }
             }
 
             _context.SaveChanges();
             CargarProductos();
             LimpiarFormulario();
-            MessageBox.Show("Operación realizada con éxito.");
+            MessageBox.Show("¡Operación realizada con éxito!");
         }
 
-        // Seleccionar registro para editar desde el DataGridView
         private void dgvProductos_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -124,7 +158,6 @@ namespace CRUDTablas
             }
         }
 
-        // DELETE
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (_productoIdSeleccionado == 0)
@@ -152,5 +185,11 @@ namespace CRUDTablas
         {
             LimpiarFormulario();
         }
+
+        // --- MÉTODOS PUENTE PARA EL DISEÑADOR (DENTRO DE LA CLASE) ---
+        private void btnGuardar_Click_1(object sender, EventArgs e) => btnGuardar_Click(sender, e);
+        private void btnEditar_Click(object sender, EventArgs e) { }
+        private void btnEliminar_Click_1(object sender, EventArgs e) => btnEliminar_Click(sender, e);
+        private void btnLimpiar_Click_1(object sender, EventArgs e) => btnLimpiar_Click(sender, e);
     }
 }
