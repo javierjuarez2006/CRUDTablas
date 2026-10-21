@@ -8,68 +8,66 @@ namespace CRUDTablas
 {
     public partial class ftmProductos : Form
     {
-        // Objeto para conectarse a la base de datos
         private readonly TiendaContext _context = new TiendaContext();
-
-        // Guarda el ID del producto seleccionado para editar o eliminar
         private int _productoIdSeleccionado = 0;
 
         public ftmProductos()
         {
             InitializeComponent();
+            CargarCategorias();
+            CargarProductos();
         }
 
+        private void ftmProductos_Load(object sender, EventArgs e)
+        {
+            // Ya se cargan los productos en el constructor.
 
+        }
 
-        // --- MÉTODOS DE SOPORTE ---
+        // Carga las categorías en el ComboBox.
         private void CargarCategorias()
         {
             try
             {
-                // 1. Asegura que la base de datos y las tablas existan
                 _context.Database.EnsureCreated();
 
-                // 2. Inserta datos por defecto si la tabla está vacía
                 if (!_context.Categorias.Any())
                 {
                     _context.Categorias.AddRange(
                         new Categoria { Nombre = "Electrónica" },
                         new Categoria { Nombre = "Ropa" }
                     );
+
                     _context.SaveChanges();
                 }
 
-                // 3. Consulta limpia aislando solo Id y Nombre (Evita el conflicto de EF Core)
                 var listaCategorias = _context.Categorias
-                    .Select(c => new { c.Id, c.Nombre })
+                    .OrderBy(c => c.Nombre)
                     .ToList();
 
-                // 4. Asignamos los valores al ComboBox
-                // Asignar los valores al ComboBox
                 cmbCategorias.DataSource = null;
-                cmbCategorias.DisplayMember = "Nombre";
-                cmbCategorias.ValueMember = "Id";
+                cmbCategorias.DisplayMember = nameof(Categoria.Nombre);
+                cmbCategorias.ValueMember = nameof(Categoria.Id);
                 cmbCategorias.DataSource = listaCategorias;
 
-                if (cmbCategorias.Items.Count > 0)
-                {
-                    cmbCategorias.SelectedIndex = 0;
+                
+                    cmbCategorias.SelectedIndex = -1;
                 }
-            }
+            
             catch (Exception ex)
             {
-                MessageBox.Show("Error al cargar categorías: " + ex.Message);
+                MessageBox.Show(
+                    $"Error al cargar categorías: {ex.GetBaseException().Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
-
-
-
+        // Carga los productos en el DataGridView.
         private void CargarProductos()
         {
-            // READ: Carga productos incluyendo los datos de la tabla relacionada Categorias
             var productos = _context.Productos
-                .Include(p => p.Categoria)
                 .Select(p => new
                 {
                     p.Id,
@@ -77,104 +75,219 @@ namespace CRUDTablas
                     p.Precio,
                     Categoria = p.Categoria.Nombre,
                     p.CategoriaId
-                }).ToList();
+                })
+                .ToList();
 
             dgvProductos.DataSource = productos;
 
-            // Ocultar columna de ID de categoría
             if (dgvProductos.Columns["CategoriaId"] != null)
+            {
                 dgvProductos.Columns["CategoriaId"].Visible = false;
+            }
         }
 
         private void LimpiarFormulario()
         {
             txtNombre.Clear();
             txtPrecio.Clear();
-            if (cmbCategorias.Items.Count > 0)
-                cmbCategorias.SelectedIndex = 0;
+
+         
+                cmbCategorias.SelectedIndex = -1;
+           
+
             _productoIdSeleccionado = 0;
             btnGuardar.Text = "Guardar";
         }
 
+        // Copia al formulario los datos de la fila seleccionada.
+        private void SeleccionarProducto(DataGridViewRow fila)
+        {
+            if (fila == null ||
+                fila.IsNewRow ||
+                fila.Cells["Id"].Value == null)
+            {
+                MessageBox.Show("Seleccione un producto válido.");
+                return;
+            }
+
+            _productoIdSeleccionado = Convert.ToInt32(fila.Cells["Id"].Value);
+
+            txtNombre.Text =
+                Convert.ToString(fila.Cells["Producto"].Value) ?? string.Empty;
+
+            txtPrecio.Text =
+                Convert.ToString(fila.Cells["Precio"].Value) ?? string.Empty;
+
+            object valorCategoriaId = fila.Cells["CategoriaId"].Value;
+
+            if (valorCategoriaId != null && valorCategoriaId != DBNull.Value)
+            {
+                cmbCategorias.SelectedValue = Convert.ToInt32(valorCategoriaId);
+            }
+
+            btnGuardar.Text = "Actualizar";
+        }
+
+        // CREATE / UPDATE
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtNombre.Text) || !decimal.TryParse(txtPrecio.Text, out decimal precio))
+            if (string.IsNullOrWhiteSpace(txtNombre.Text))
             {
-                MessageBox.Show("Por favor, rellene los campos correctamente.");
+                MessageBox.Show("Introduzca el nombre del producto.");
+                txtNombre.Focus();
                 return;
             }
 
-            // Validación de seguridad para que no explote si no hay categoría seleccionada
-            if (cmbCategorias.SelectedValue == null)
+            if (!decimal.TryParse(txtPrecio.Text, out decimal precio))
             {
-                MessageBox.Show("Por favor, seleccione una categoría válida.");
+                MessageBox.Show("Introduzca un precio válido.");
+                txtPrecio.Focus();
                 return;
             }
 
-            int categoriaId = Convert.ToInt32(cmbCategorias.SelectedValue);
+            if (cmbCategorias.SelectedItem is not Categoria categoriaSeleccionada)
+            {
+                MessageBox.Show("Seleccione una categoría válida.");
+                return;
+            }
+
+            int categoriaId = categoriaSeleccionada.Id;
+
+            if (!_context.Categorias.Any(c => c.Id == categoriaId))
+            {
+                MessageBox.Show("La categoría seleccionada no existe en la base de datos.");
+                CargarCategorias();
+                return;
+            }
 
             if (_productoIdSeleccionado == 0)
             {
-                // CREATE
                 var nuevoProducto = new Producto
                 {
-                    Nombre = txtNombre.Text,
+                    Nombre = txtNombre.Text.Trim(),
                     Precio = precio,
                     CategoriaId = categoriaId
                 };
+
                 _context.Productos.Add(nuevoProducto);
             }
             else
             {
-                // UPDATE
-                var productoExistente = _context.Productos.Find(_productoIdSeleccionado);
-                if (productoExistente != null)
+                var productoExistente =
+                    _context.Productos.Find(_productoIdSeleccionado);
+
+                if (productoExistente == null)
                 {
-                    productoExistente.Nombre = txtNombre.Text;
-                    productoExistente.Precio = precio;
-                    productoExistente.CategoriaId = categoriaId;
+                    MessageBox.Show("No se encontró el producto que intenta actualizar.");
+                    LimpiarFormulario();
+                    CargarProductos();
+                    return;
                 }
+
+                productoExistente.Nombre = txtNombre.Text.Trim();
+                productoExistente.Precio = precio;
+                productoExistente.CategoriaId = categoriaId;
             }
 
-            _context.SaveChanges();
-            CargarProductos();
-            LimpiarFormulario();
-            MessageBox.Show("¡Operación realizada con éxito!");
+            try
+            {
+                _context.SaveChanges();
+                CargarProductos();
+                LimpiarFormulario();
+
+                MessageBox.Show("Operación realizada con éxito.");
+            }
+            catch (DbUpdateException ex)
+            {
+                MessageBox.Show(
+                    $"No se pudo guardar el producto: {ex.GetBaseException().Message}",
+                    "Error de base de datos",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
-        private void dgvProductos_CellClick(object sender, DataGridViewCellEventArgs e)
+        // Al hacer clic en una fila, carga sus datos en el formulario.
+        private void dgvProductos_CellClick(
+            object sender,
+            DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
-                DataGridViewRow row = dgvProductos.Rows[e.RowIndex];
-                _productoIdSeleccionado = Convert.ToInt32(row.Cells["Id"].Value);
-                txtNombre.Text = row.Cells["Producto"].Value.ToString();
-                txtPrecio.Text = row.Cells["Precio"].Value.ToString();
-                cmbCategorias.SelectedValue = Convert.ToInt32(row.Cells["CategoriaId"].Value);
-                btnGuardar.Text = "Actualizar";
+                SeleccionarProducto(dgvProductos.Rows[e.RowIndex]);
             }
         }
 
-        private void btnEliminar_Click(object sender, EventArgs e)
+        // El botón Editar también carga la fila actual en el formulario.
+        private void btnEditar_Click(object sender, EventArgs e)
         {
-            if (_productoIdSeleccionado == 0)
+            if (dgvProductos.CurrentRow == null)
             {
-                MessageBox.Show("Seleccione un producto de la lista para eliminar.");
+                MessageBox.Show("Seleccione un producto de la tabla.");
                 return;
             }
 
-            var confirm = MessageBox.Show("¿Está seguro de eliminar este producto?", "Confirmar", MessageBoxButtons.YesNo);
-            if (confirm == DialogResult.Yes)
+            SeleccionarProducto(dgvProductos.CurrentRow);
+        }
+
+        // DELETE
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            int productoId = _productoIdSeleccionado;
+
+            // Si CellClick no estableció el ID, intenta obtenerlo de la fila actual.
+            if (productoId == 0 &&
+                dgvProductos.CurrentRow != null &&
+                dgvProductos.CurrentRow.Cells["Id"].Value != null)
             {
-                var producto = _context.Productos.Find(_productoIdSeleccionado);
-                if (producto != null)
+                productoId = Convert.ToInt32(
+                    dgvProductos.CurrentRow.Cells["Id"].Value);
+            }
+
+            if (productoId == 0)
+            {
+                MessageBox.Show("Seleccione un producto de la tabla para eliminar.");
+                return;
+            }
+
+            var confirmacion = MessageBox.Show(
+                "¿Está seguro de eliminar este producto?",
+                "Confirmar eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmacion != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                var producto = _context.Productos.Find(productoId);
+
+                if (producto == null)
                 {
-                    _context.Productos.Remove(producto);
-                    _context.SaveChanges();
+                    MessageBox.Show("No se encontró el producto.");
                     CargarProductos();
                     LimpiarFormulario();
-                    MessageBox.Show("Producto eliminado.");
+                    return;
                 }
+
+                _context.Productos.Remove(producto);
+                _context.SaveChanges();
+
+                CargarProductos();
+                LimpiarFormulario();
+
+                MessageBox.Show("Producto eliminado.");
+            }
+            catch (DbUpdateException ex)
+            {
+                MessageBox.Show(
+                    $"No se pudo eliminar el producto: {ex.GetBaseException().Message}",
+                    "Error de base de datos",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -183,10 +296,22 @@ namespace CRUDTablas
             LimpiarFormulario();
         }
 
-        // --- MÉTODOS PUENTE PARA EL DISEÑADOR (DENTRO DE LA CLASE) ---
-        private void btnGuardar_Click_1(object sender, EventArgs e) => btnGuardar_Click(sender, e);
-        private void btnEditar_Click(object sender, EventArgs e) { }
-        private void btnEliminar_Click_1(object sender, EventArgs e) => btnEliminar_Click(sender, e);
-        private void btnLimpiar_Click_1(object sender, EventArgs e) => btnLimpiar_Click(sender, e);
+        // Puentes del diseñador: conserva estos métodos si el diseñador los usa.
+        private void btnGuardar_Click_1(object sender, EventArgs e)
+        {
+            btnGuardar_Click(sender, e);
+        }
+
+        private void btnEliminar_Click_1(object sender, EventArgs e)
+        {
+            btnEliminar_Click(sender, e);
+        }
+
+        private void btnLimpiar_Click_1(object sender, EventArgs e)
+        {
+            btnLimpiar_Click(sender, e);
+        }
     }
 }
+
+
