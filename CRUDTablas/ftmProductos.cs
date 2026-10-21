@@ -8,18 +8,15 @@ namespace CRUDTablas
 {
     public partial class ftmProductos : Form
     {
-        private TiendaContext _context = new TiendaContext();
+        // Objeto para conectarse a la base de datos
+        private readonly TiendaContext _context = new TiendaContext();
+
+        // Guarda el ID del producto seleccionado para editar o eliminar
         private int _productoIdSeleccionado = 0;
 
         public ftmProductos()
         {
             InitializeComponent();
-        }
-
-        private void ftmProductos_Load(object sender, EventArgs e)
-        {
-            CargarCategorias();
-            CargarProductos();
         }
 
 
@@ -48,12 +45,12 @@ namespace CRUDTablas
                     .ToList();
 
                 // 4. Asignamos los valores al ComboBox
+                // Asignar los valores al ComboBox
                 cmbCategorias.DataSource = null;
-                cmbCategorias.DataSource = listaCategorias;
                 cmbCategorias.DisplayMember = "Nombre";
                 cmbCategorias.ValueMember = "Id";
+                cmbCategorias.DataSource = listaCategorias;
 
-                // 5. Seleccionamos el primer elemento por defecto
                 if (cmbCategorias.Items.Count > 0)
                 {
                     cmbCategorias.SelectedIndex = 0;
