@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 
+
+
 namespace CRUDTablas.Models
 {
     public class TiendaContext : DbContext
@@ -11,11 +13,11 @@ namespace CRUDTablas.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Ruta automatizada hacia tu archivo MDF local
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string dbPath = Path.Combine(baseDir, "TiendaDB.mdf");
-
-            optionsBuilder.UseSqlServer($@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename={dbPath};Integrated Security=True;TrustServerCertificate=True");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(
+                    @"Server=(LocalDB)\MSSQLLocalDB;Database=CRUDTablasProductosDB;Integrated Security=True;TrustServerCertificate=True");
+            }
         }
     }
 }
